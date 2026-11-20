@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import {
+  AuthRequiredError,
   deleteJob,
   getAuthStatus,
   getHealth,
@@ -129,6 +131,15 @@ export default function App() {
     };
   }, [activeJob, refreshHistory]);
 
+  function handleActionError(err: unknown, fallback: string) {
+    if (err instanceof AuthRequiredError) {
+      setBannerError('');
+      setLocked(true);
+      return;
+    }
+    setBannerError(err instanceof Error ? err.message : fallback);
+  }
+
   async function handleSubmitUrl(url: string) {
     setSubmitting(true);
     setBannerError('');
@@ -138,9 +149,7 @@ export default function App() {
       setView('job');
       void refreshHistory();
     } catch (err) {
-      setBannerError(
-        err instanceof Error ? err.message : 'Failed to enqueue video job.'
-      );
+      handleActionError(err, 'Failed to enqueue video job.');
     } finally {
       setSubmitting(false);
     }
@@ -155,9 +164,7 @@ export default function App() {
       setView('job');
       void refreshHistory();
     } catch (err) {
-      setBannerError(
-        err instanceof Error ? err.message : 'Failed to upload video.'
-      );
+      handleActionError(err, 'Failed to upload video.');
     } finally {
       setSubmitting(false);
     }
@@ -172,9 +179,7 @@ export default function App() {
       setView('job');
       void refreshHistory();
     } catch (err) {
-      setBannerError(
-        err instanceof Error ? err.message : 'Failed to start sample session.'
-      );
+      handleActionError(err, 'Failed to start sample session.');
     } finally {
       setSubmitting(false);
     }
@@ -251,8 +256,16 @@ export default function App() {
           role="alert"
           className="mx-auto mt-4 max-w-[1280px] px-4 sm:px-6 lg:px-8"
         >
-          <div className="rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#FECACA]">
-            {bannerError}
+          <div className="flex items-start justify-between gap-3 rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/10 px-4 py-3 text-sm text-[#FECACA]">
+            <span>{bannerError}</span>
+            <button
+              type="button"
+              onClick={() => setBannerError('')}
+              aria-label="Dismiss error"
+              className="shrink-0 rounded p-0.5 text-[#FECACA]/80 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
         </div>
       ) : null}

@@ -23,6 +23,11 @@ export const MANAGED_YTDLP_PATH = path.join(BIN_DIR, 'yt-dlp');
 export const COOKIES_FILE_PATH = path.resolve(
   process.cwd(),
   'tmp_storage',
+  'uploaded_youtube_cookies.txt'
+);
+const ENV_COOKIES_FILE_PATH = path.resolve(
+  process.cwd(),
+  'tmp_storage',
   'youtube_cookies.txt'
 );
 const YTDLP_RELEASE_URL =
@@ -120,14 +125,14 @@ export function getYoutubeCookiesStatus(): {
   configured: boolean;
   source: 'env' | 'file' | 'none';
 } {
-  if ((process.env.YOUTUBE_COOKIES || '').trim().length > 0) {
-    return { configured: true, source: 'env' };
-  }
   if (fs.existsSync(COOKIES_FILE_PATH)) {
     const stat = fs.statSync(COOKIES_FILE_PATH);
     if (stat.size > 0) {
       return { configured: true, source: 'file' };
     }
+  }
+  if ((process.env.YOUTUBE_COOKIES || '').trim().length > 0) {
+    return { configured: true, source: 'env' };
   }
   return { configured: false, source: 'none' };
 }
@@ -150,21 +155,25 @@ export async function clearYoutubeCookies(): Promise<void> {
 }
 
 async function resolveYoutubeCookiesPath(): Promise<string | undefined> {
-  const envVal = (process.env.YOUTUBE_COOKIES || '').trim();
-  if (envVal) {
-    await fsp.mkdir(path.dirname(COOKIES_FILE_PATH), { recursive: true });
-    // Support either raw Netscape cookies text or base64-encoded cookies.txt
-    const decoded =
-      envVal.includes('youtube.com') || envVal.includes('# Netscape')
-        ? envVal
-        : Buffer.from(envVal, 'base64').toString('utf8');
-    await fsp.writeFile(COOKIES_FILE_PATH, `${decoded.trim()}\n`, 'utf8');
-    return COOKIES_FILE_PATH;
+  // Prefer cookies.txt uploaded via the UI so users can refresh expired env cookies
+  if (fs.existsSync(COOKIES_FILE_PATH)) {
+    const stat = fs.statSync(COOKIES_FILE_PATH);
+    if (stat.size > 0) return COOKIES_FILE_PATH;
   }
 
-  if (fs.existsSync(COOKIES_FILE_PATH)) {
-    const stat = await fsp.stat(COOKIES_FILE_PATH);
-    if (stat.size > 0) return COOKIES_FILE_PATH;
+  const envVal = (process.env.YOUTUBE_COOKIES || '').trim();
+  if (envVal) {
+    await fsp.mkdir(path.dirname(ENV_COOKIES_FILE_PATH), { recursive: true });
+    // Support raw Netscape text, single-line escaped \n text, or base64-encoded cookies.txt
+    const unescaped = envVal.includes('\\n')
+      ? envVal.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+      : envVal;
+    const decoded =
+      unescaped.includes('youtube.com') || unescaped.includes('# Netscape')
+        ? unescaped
+        : Buffer.from(unescaped, 'base64').toString('utf8');
+    await fsp.writeFile(ENV_COOKIES_FILE_PATH, `${decoded.trim()}\n`, 'utf8');
+    return ENV_COOKIES_FILE_PATH;
   }
 
   return undefined;

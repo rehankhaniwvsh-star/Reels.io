@@ -24,7 +24,18 @@ import {
 import { jobQueue, STORAGE_ROOT } from './server/jobQueue.ts';
 import type { ClipSettings } from './src/shared/types.ts';
 
-const PORT = Number(process.env.PORT || 3000);
+function resolvePort(): number {
+  const envPort = Number(process.env.PORT);
+  if (Number.isFinite(envPort) && envPort > 0) return envPort;
+  const idx = process.argv.findIndex((a) => a === '--port' || a === '-p');
+  if (idx !== -1 && process.argv[idx + 1]) {
+    const cliPort = Number(process.argv[idx + 1]);
+    if (Number.isFinite(cliPort) && cliPort > 0) return cliPort;
+  }
+  return 3000;
+}
+
+const PORT = resolvePort();
 const UPLOAD_TEMP_DIR = path.resolve(process.cwd(), 'tmp_storage', 'uploads');
 
 function getConfiguredPassword(): string {
@@ -378,9 +389,34 @@ async function startServer() {
     res.status(404).json({ error: 'API endpoint not found.' });
   });
 
-  // Frontend serving: Vite dev middleware in development, static dist/ in production
-  const isProd = process.env.NODE_ENV === 'production';
-  if (!isProd) {
+  // Ensure API middleware errors (e.g. multer file size or JSON parse errors) return JSON
+  app.use(
+    '/api',
+    (err: Error & { status?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
+      if (res.headersSent) return;
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        res.status(413).json({
+          error: 'Video file is too large for direct upload. Try a shorter clip or a direct video URL.',
+        });
+        return;
+      }
+      const status = typeof err.status === 'number' && err.status >= 400 ? err.status : 500;
+      res.status(status).json({
+        error: err.message || 'Internal server error.',
+      });
+    }
+  );
+
+  // Frontend serving: Vite dev middleware in development, static dist/ in production/start/preview
+  const distDir = path.resolve(process.cwd(), 'dist');
+  const distIndex = path.join(distDir, 'index.html');
+  const lifecycle = process.env.npm_lifecycle_event || '';
+  const useStaticDist =
+    process.env.NODE_ENV === 'production' ||
+    ((lifecycle === 'start' || lifecycle === 'preview') &&
+      fs.existsSync(distIndex));
+
+  if (!useStaticDist) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -388,10 +424,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distDir = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distDir));
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(distDir, 'index.html'));
+      res.sendFile(distIndex);
     });
   }
 

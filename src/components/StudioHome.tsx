@@ -243,10 +243,18 @@ export function StudioHome({
                     (
                     <button
                       type="button"
+                      onClick={() => cookiesInputRef.current?.click()}
+                      className="underline hover:text-[#F5B700]"
+                    >
+                      replace
+                    </button>
+                    {' · '}
+                    <button
+                      type="button"
                       onClick={() => void handleClearCookies()}
                       className="underline hover:text-[#F4F4F5]"
                     >
-                      remove
+                      clear
                     </button>
                     )
                   </>
