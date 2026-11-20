@@ -6,7 +6,7 @@ import type {
   StyleFocusOption,
   TranscriptSegment,
   TranscriptWord,
-} from './types';
+} from './types.ts';
 
 export interface RawLLMMoment {
   start: number;

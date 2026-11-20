@@ -46,15 +46,19 @@ export function withPasscodeUrl(url: string): string {
 }
 
 async function handleJson<T>(res: Response): Promise<T> {
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => null);
   if (!res.ok) {
-    const msg =
-      typeof data?.error === 'string'
-        ? data.error
-        : `Request failed (HTTP ${res.status})`;
-    throw new Error(msg);
+    if (typeof data?.error === 'string') {
+      throw new Error(data.error);
+    }
+    if (res.status === 404) {
+      throw new Error(
+        'Backend API could not be reached (HTTP 404). Refresh the page or restart the server and try again.'
+      );
+    }
+    throw new Error(`Request failed (HTTP ${res.status})`);
   }
-  return data as T;
+  return (data ?? {}) as T;
 }
 
 export async function getAuthStatus(): Promise<{ passwordRequired: boolean }> {

@@ -5,8 +5,8 @@ import {
   getTargetClipCount,
   selectRankedMoments,
   type RawLLMMoment,
-} from '../src/shared/momentScoring';
-import { getEmojiForWord, isKeywordWord } from '../src/shared/captionEngine';
+} from '../src/shared/momentScoring.ts';
+import { getEmojiForWord, isKeywordWord } from '../src/shared/captionEngine.ts';
 import type {
   AudioSpike,
   ClipSettings,
@@ -14,7 +14,7 @@ import type {
   StyleFocusOption,
   TranscriptSegment,
   TranscriptWord,
-} from '../src/shared/types';
+} from '../src/shared/types.ts';
 
 function getGeminiClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;

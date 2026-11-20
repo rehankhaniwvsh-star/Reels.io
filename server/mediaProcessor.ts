@@ -5,13 +5,13 @@ import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 import { promisify } from 'node:util';
-import { generateAssSubtitles } from '../src/shared/captionEngine';
+import { generateAssSubtitles } from '../src/shared/captionEngine.ts';
 import type {
   AudioSpike,
   CaptionCustomization,
   LayoutMode,
   TranscriptWord,
-} from '../src/shared/types';
+} from '../src/shared/types.ts';
 
 const execFileAsync = promisify(execFile);
 

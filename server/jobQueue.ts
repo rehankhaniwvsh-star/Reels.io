@@ -6,7 +6,7 @@ import {
   buildSampleStudioTranscript,
   findEngagingMomentsWithGemini,
   transcribeAudioWithGemini,
-} from './aiService';
+} from './aiService.ts';
 import {
   cleanupExpiredJobs,
   downloadVideoFromUrl,
@@ -16,8 +16,8 @@ import {
   probeVideo,
   renderVerticalClip,
   SEVEN_DAYS_MS,
-} from './mediaProcessor';
-import { getTemplateById } from '../src/shared/captionEngine';
+} from './mediaProcessor.ts';
+import { getTemplateById } from '../src/shared/captionEngine.ts';
 import type {
   CaptionCustomization,
   ClipItem,
@@ -27,7 +27,7 @@ import type {
   JobStepStatus,
   LayoutMode,
   TranscriptWord,
-} from '../src/shared/types';
+} from '../src/shared/types.ts';
 
 export const STORAGE_ROOT = path.resolve(process.cwd(), 'tmp_storage', 'jobs');
 

@@ -15,10 +15,10 @@ export function TopBar({
   activeJobZipUrl,
   onNewReel,
 }: TopBarProps) {
-  const navItems: Array<{ id: AppView; label: string }> = [
+  const navItems: Array<{ id: AppView; label: string; mobileLabel?: string }> = [
     { id: 'studio', label: 'Studio' },
     { id: 'templates', label: 'Templates' },
-    { id: 'history', label: 'Recent Jobs' },
+    { id: 'history', label: 'Recent Jobs', mobileLabel: 'Jobs' },
   ];
 
   return (
@@ -36,7 +36,7 @@ export function TopBar({
         {/* Zone 2: Concise single-line text nav links */}
         <nav
           aria-label="Primary navigation"
-          className="flex items-center gap-3.5 sm:gap-8"
+          className="flex items-center gap-3 sm:gap-8"
         >
           {navItems.map((item) => {
             const isActive =
@@ -53,7 +53,14 @@ export function TopBar({
                     : 'text-[#9CA3AF] hover:text-[#F4F4F5]'
                 }`}
               >
-                {item.label}
+                {item.mobileLabel ? (
+                  <>
+                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="sm:hidden">{item.mobileLabel}</span>
+                  </>
+                ) : (
+                  item.label
+                )}
                 {isActive && (
                   <span
                     aria-hidden="true"

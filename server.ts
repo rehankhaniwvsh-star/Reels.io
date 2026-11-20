@@ -12,7 +12,7 @@ type ArchiverFactory = (
 const createArchiver: ArchiverFactory =
   (archiverPkg as unknown as { default?: ArchiverFactory }).default ??
   (archiverPkg as unknown as ArchiverFactory);
-import { CAPTION_TEMPLATES } from './src/shared/captionEngine';
+import { CAPTION_TEMPLATES } from './src/shared/captionEngine.ts';
 import {
   checkToolAvailability,
   clearYoutubeCookies,
@@ -20,9 +20,9 @@ import {
   getYoutubeCookiesStatus,
   MAX_VIDEO_DURATION_SECONDS,
   saveYoutubeCookies,
-} from './server/mediaProcessor';
-import { jobQueue, STORAGE_ROOT } from './server/jobQueue';
-import type { ClipSettings } from './src/shared/types';
+} from './server/mediaProcessor.ts';
+import { jobQueue, STORAGE_ROOT } from './server/jobQueue.ts';
+import type { ClipSettings } from './src/shared/types.ts';
 
 const PORT = Number(process.env.PORT || 3000);
 const UPLOAD_TEMP_DIR = path.resolve(process.cwd(), 'tmp_storage', 'uploads');
@@ -371,6 +371,11 @@ async function startServer() {
     }
 
     archive.finalize();
+  });
+
+  // Return clean JSON 404 for any unmatched /api/* route instead of HTML fallback
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'API endpoint not found.' });
   });
 
   // Frontend serving: Vite dev middleware in development, static dist/ in production

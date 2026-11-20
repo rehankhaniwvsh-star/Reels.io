@@ -1,10 +1,10 @@
-import rawTemplates from './captionTemplates.json';
+import rawTemplates from './captionTemplates.json' with { type: 'json' };
 import type {
   CaptionCustomization,
   CaptionPosition,
   CaptionTemplate,
   TranscriptWord,
-} from './types';
+} from './types.ts';
 
 export const CAPTION_TEMPLATES: CaptionTemplate[] = rawTemplates as CaptionTemplate[];
 
