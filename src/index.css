@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background-color: #0c0d10;
+    color: #f4f4f5;
+    color-scheme: dark;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes karaoke-pop {
+  0% {
+    transform: scale(0.92) translateY(2px);
+  }
+  55% {
+    transform: scale(1.12) translateY(-2px);
+  }
+  100% {
+    transform: scale(1.04) translateY(0);
+  }
+}
+
+@keyframes slide-up-word {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes emoji-bounce {
+  0% {
+    transform: scale(0.5) rotate(-8deg);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.18) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-karaoke-pop {
+  animation: karaoke-pop 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up-word {
+  animation: slide-up-word 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-emoji-bounce {
+  animation: emoji-bounce 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-karaoke-pop,
+  .animate-slide-up-word,
+  .animate-emoji-bounce {
+    animation: none;
+  }
+}

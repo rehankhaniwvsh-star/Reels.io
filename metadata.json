@@ -1,0 +1,6 @@
+{
+  "name": "ReelMaker",
+  "description": "Turn long videos into viral 9:16 vertical reels of the funniest, most engaging moments with animated captions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
